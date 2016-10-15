@@ -1,7 +1,7 @@
 /*global cordova, module*/
 
 function InAppBrowserXwalk() {
- 
+
 }
 
 var callbacks = new Array ();
@@ -21,6 +21,10 @@ InAppBrowserXwalk.prototype = {
     },
     hide: function () {
         cordova.exec(null, null, "InAppBrowserXwalk", "hide", []);
+    },
+    executeScript: function (javascript, options) {
+        options = (options === undefined) ? "{}" : JSON.stringify(options);
+        cordova.exec(null, null, "InAppBrowserXwalk", "executeScript", [javascript, options]);
     }
 }
 
@@ -34,6 +38,9 @@ var callback = function(event) {
     if (event.type === "exit" && callbacks['exit'] !== undefined) {
         callbacks['exit']();
     }
+    if (event.type === "executeScript" && callbacks['executeScript'] !== undefined) {
+        callbacks['executeScript'](event.javascript);
+    }
 }
 
 module.exports = {
@@ -42,4 +49,9 @@ module.exports = {
         cordova.exec(callback, null, "InAppBrowserXwalk", "open", [url, options]);
         return new InAppBrowserXwalk();
     }
+    // ,evaluateJavascript: function (url, options) {
+    //     options = (options === undefined) ? "{}" : JSON.stringify(options);
+    //     cordova.exec(null, null, "InAppBrowserXwalk", "evaluateJavascript", [url, options]);
+    //     return new InAppBrowserXwalk();
+    // }
 };
