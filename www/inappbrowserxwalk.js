@@ -35,6 +35,9 @@ var callback = function(event) {
     if (event.type === "loadstop" && callbacks['loadstop'] !== undefined) {
         callbacks['loadstop'](event.url);
     }
+    if (event.type === "shouldInterceptLoadRequest" && callbacks['shouldInterceptLoadRequest'] !== undefined) {
+        callbacks['shouldInterceptLoadRequest'](event.url);
+    }
     if (event.type === "exit" && callbacks['exit'] !== undefined) {
         callbacks['exit']();
     }
@@ -48,10 +51,10 @@ module.exports = {
         options = (options === undefined) ? "{}" : JSON.stringify(options);
         cordova.exec(callback, null, "InAppBrowserXwalk", "open", [url, options]);
         return new InAppBrowserXwalk();
+    },
+    loadFromManifest: function (url, options) {
+        options = (options === undefined) ? "{}" : JSON.stringify(options);
+        cordova.exec(callback, null, "InAppBrowserXwalk", "loadFromManifest", [url, options]);
+        return new InAppBrowserXwalk();
     }
-    // ,evaluateJavascript: function (url, options) {
-    //     options = (options === undefined) ? "{}" : JSON.stringify(options);
-    //     cordova.exec(null, null, "InAppBrowserXwalk", "evaluateJavascript", [url, options]);
-    //     return new InAppBrowserXwalk();
-    // }
 };
