@@ -63,6 +63,11 @@ public class InAppBrowserXwalk extends CordovaPlugin {
             this.executeScript(data);
         }
 
+        if(action.equals("injectStyleCode")) {
+            this.callbackContext = callbackContext;
+            this.injectStyleCode(data);
+        }
+
 
         return true;
     }
@@ -197,7 +202,7 @@ public class InAppBrowserXwalk extends CordovaPlugin {
     }
 
     private void loadBrowser(final JSONArray data) throws JSONException {
-        final String url = data.getString(0);
+        final String pathManifest = data.getString(0);
         this.cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -207,7 +212,7 @@ public class InAppBrowserXwalk extends CordovaPlugin {
                 mCookieManager.setAcceptCookie(true);
                 mCookieManager.setAcceptFileSchemeCookies(true);
                 xWalkWebView.setResourceClient(new MyResourceClient(xWalkWebView));
-                xWalkWebView.loadAppFromManifest("file:///android_asset/www/manifest.json", null);
+                xWalkWebView.loadAppFromManifest(pathManifest, null);
 
                 String toolbarColor = "#FFFFFF";
                 int toolbarHeight = 80;
@@ -334,6 +339,87 @@ public class InAppBrowserXwalk extends CordovaPlugin {
                     JSONObject obj = new JSONObject();
                     obj.put("type", "executeScript");
                     obj.put("javascript", javascript);
+                    PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
+                    result.setKeepCallback(true);
+                    callbackContext.sendPluginResult(result);
+                } catch (JSONException ex) {}
+            }
+        });
+    }
+
+    // public void injectStyleCode(JSONArray data) throws JSONException {
+
+    //     //xWalkWebView.onDestroy();
+    //     final String style = data.getString(0);
+
+    //     String jsWrapper = "(function(d) { var c = d.createElement('style'); c.innerHTML = %s; d.body.appendChild(c); })(document)";
+
+    //     android.util.Log.v("[InAppBrowserXwalk]", "run jsWrapper:" + jsWrapper);
+
+    //     String scriptToInject;
+
+    //     org.json.JSONArray jsonEsc = new org.json.JSONArray();
+    //     jsonEsc.put(style);
+    //     String jsonRepr = jsonEsc.toString();
+    //     String jsonSourceString = jsonRepr.substring(1, jsonRepr.length()-1);
+    //     scriptToInject = String.format(jsWrapper, jsonSourceString);
+
+    //     final String finalScriptToInject = scriptToInject;
+
+
+    //     this.cordova.getActivity().runOnUiThread(new Runnable() {
+    //         @Override
+    //         public void run() {
+
+    //             android.util.Log.v("[InAppBrowserXwalk]", "run finalScriptToInject:" + finalScriptToInject);
+
+    //             xWalkWebView.evaluateJavascript(finalScriptToInject,null);
+
+    //             try {
+    //                 JSONObject obj = new JSONObject();
+    //                 obj.put("type", "injectStyleCode");
+    //                 obj.put("injectStyleCode", finalScriptToInject);
+    //                 PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
+    //                 result.setKeepCallback(true);
+    //                 callbackContext.sendPluginResult(result);
+    //             } catch (JSONException ex) {}
+    //         }
+    //     });
+    // }
+
+
+    public void injectStyleCode(JSONArray data) throws JSONException {
+
+        //xWalkWebView.onDestroy();
+        final String style = data.getString(0);
+
+        String jsWrapper = "(function(d) { var c = d.createElement('style'); c.innerHTML = %s; d.body.appendChild(c); })(document)";
+
+        android.util.Log.v("[InAppBrowserXwalk]", "run jsWrapper:" + jsWrapper);
+
+        String scriptToInject;
+
+        org.json.JSONArray jsonEsc = new org.json.JSONArray();
+        jsonEsc.put(style);
+        String jsonRepr = jsonEsc.toString();
+        String jsonSourceString = jsonRepr.substring(1, jsonRepr.length()-1);
+        scriptToInject = String.format(jsWrapper, jsonSourceString);
+
+        final String finalScriptToInject = scriptToInject;
+
+
+        this.cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                android.util.Log.v("[InAppBrowserXwalk]", "run finalScriptToInject:" + finalScriptToInject);
+
+                xWalkWebView.load("javascript:" + finalScriptToInject, "");
+
+                try {
+                    JSONObject obj = new JSONObject();
+                    obj.put("type", "injectStyleCode");
+                    obj.put("injectStyleCode", finalScriptToInject);
                     PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
                     result.setKeepCallback(true);
                     callbackContext.sendPluginResult(result);

@@ -25,10 +25,15 @@ InAppBrowserXwalk.prototype = {
     executeScript: function (javascript, options) {
         options = (options === undefined) ? "{}" : JSON.stringify(options);
         cordova.exec(null, null, "InAppBrowserXwalk", "executeScript", [javascript, options]);
+    },
+    injectStyleCode: function (style, options) {
+        options = (options === undefined) ? "{}" : JSON.stringify(options);
+        cordova.exec(null, null, "InAppBrowserXwalk", "injectStyleCode", [style, options]);
     }
 }
 
 var callback = function(event) {
+
     if (event.type === "loadstart" && callbacks['loadstart'] !== undefined) {
         callbacks['loadstart'](event.url);
     }
@@ -43,6 +48,9 @@ var callback = function(event) {
     }
     if (event.type === "executeScript" && callbacks['executeScript'] !== undefined) {
         callbacks['executeScript'](event.javascript);
+    }
+    if (event.type === "injectStyleCode" && callbacks['injectStyleCode'] !== undefined) {
+        callbacks['injectStyleCode'](event.style);
     }
 }
 
